@@ -1,0 +1,32 @@
+# Netlify Deployment Configuration
+[build]
+  publish = "public"
+
+# Frontend routes redirects to support clean URLs
+[[redirects]]
+  from = "/"
+  to = "/upload.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/processing"
+  to = "/previews.html"
+  status = 200
+
+[[redirects]]
+  from = "/workspace/*"
+  to = "/main.html"
+  status = 200
+
+# API Proxy to redirect local backend requests to your live Vercel backend
+# Replace "https://thinkpadllm.vercel.app" with your actual Vercel deployment URL if different.
+[[redirects]]
+  from = "/api/*"
+  to = "https://thinkpadllm.vercel.app/api/:splat"
+  status = 200
+  force = true

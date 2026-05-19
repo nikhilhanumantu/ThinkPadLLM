@@ -1,15 +1,17 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "builds": [
     {
       "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
-    }
+  "rewrites": [
+    { "source": "/", "destination": "public/upload.html" },
+    { "source": "/login", "destination": "public/login.html" },
+    { "source": "/processing", "destination": "public/previews.html" },
+    { "source": "/workspace/:id", "destination": "public/main.html" },
+    { "source": "/api/(.*)", "destination": "api/index.py" }
   ]
 }

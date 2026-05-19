@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Intelligent Canvas | Workspace</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Markdown, Mermaid, html2canvas, jsPDF -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface-variant": "#444651",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#264191",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#8fa7fe",
+                        "outline": "#757682",
+                        "on-secondary-container": "#1d3989",
+                        "on-tertiary-fixed": "#002109",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00164e",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#222a3e",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#dae2fd",
+                        "on-background": "#191c1e",
+                        "secondary-fixed": "#dce1ff",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c5c5d3",
+                        "primary-container": "#384055",
+                        "on-primary-container": "#a4abc5",
+                        "surface": "#f7f9fb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#003211",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#004b1e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#4059aa",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#b6c4ff",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-tertiary-container": "#22c55e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .brand-logo {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e0e3e5;
+            border-radius: 10px;
+        }
+
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prose p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+
+        .prose strong {
+            font-weight: bold;
+        }
+
+        /* Chat prose fixes to prevent merging */
+        .chat-prose p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .chat-prose p:last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-prose ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chat-prose ol {
+            list-style-type: decimal;
+            padding-left: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chat-prose li {
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-prose h3 {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-prose code {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+
+        .chat-prose pre {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background overflow-hidden">
+
+    <!-- TopAppBar -->
+    <header
+        class="bg-slate-50/60 backdrop-blur-xl text-slate-900 fixed top-0 w-full z-50 flex justify-between items-center px-6 h-20 w-full max-w-full">
+        <div class="flex items-center gap-4">
+            <!-- Mobile Sidebar Hamburger Menu -->
+            <button class="lg:hidden p-2 rounded-full hover:bg-slate-200/50 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(true)">
+                <span class="material-symbols-outlined text-slate-900 text-2xl">menu</span>
+            </button>
+            <span class="text-xl md:text-2xl font-black text-slate-900 cursor-pointer" onclick="window.location.href='/'">The
+                Intelligent Canvas</span>
+            <nav class="hidden md:flex items-center gap-6">
+                <a class="font-manrope font-bold tracking-tight text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1 rounded-md"
+                    href="/">New Board</a>
+                <a class="font-manrope font-bold tracking-tight text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1 rounded-md"
+                    href="/processing">My Boards</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="p-2 rounded-full hover:bg-slate-200/50 transition-colors" onclick="handleLogout()">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Sidebar Mobile Overlay Backdrop -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden" onclick="toggleMainSidebar(false)"></div>
+
+    <main class="pt-20 flex h-screen overflow-hidden">
+        <!-- SIDEBAR -->
+        <aside id="main-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-100 p-4 border-r border-slate-200/10 flex flex-col h-full -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:w-64 lg:z-auto">
+            <div class="flex items-center justify-between mb-8 px-2">
+                <div>
+                    <h2 class="font-manrope font-extrabold text-xl text-slate-900">Manuscript AI</h2>
+                    <p class="text-xs text-slate-500">Pro Plan Workspace</p>
+                </div>
+                <!-- Mobile Sidebar Close Trigger -->
+                <button class="lg:hidden p-2 rounded-full hover:bg-slate-200 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(false)">
+                    <span class="material-symbols-outlined text-slate-700">close</span>
+                </button>
+            </div>
+            <button
+                class="mb-6 w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-all scale-95 duration-200"
+                onclick="window.location.href='/'">
+                <span class="material-symbols-outlined">edit_note</span>
+                New Note
+            </button>
+            <nav class="flex-1 space-y-2">
+                <div class="flex items-center gap-3 p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded-xl cursor-pointer transition-all"
+                    onclick="window.location.href='/'">
+                    <span class="material-symbols-outlined">add</span>
+                    <span class="font-inter text-sm">New Board</span>
+                </div>
+                <div
+                    class="flex items-center gap-3 p-3 bg-white text-slate-900 rounded-xl shadow-sm cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">memory</span>
+                    <span class="font-inter text-sm">Workspace</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded-xl cursor-pointer transition-all"
+                    onclick="window.location.href='/processing'">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-inter text-sm">My Boards</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- LEFT CONTENT CANVAS (70%) -->
+        <section class="flex-1 flex flex-col relative bg-surface overflow-hidden">
+            <!-- Tabs Bar -->
+            <div class="px-8 pt-6 flex items-center justify-between border-b-0">
+                <div class="flex gap-8 border-b border-outline-variant/20 w-full" id="tabs-bar">
+                    <button class="tab-btn pb-3 border-b-2 border-primary text-primary font-bold text-sm"
+                        onclick="switchTab('notes')">Notes</button>
+                    <button
+                        class="tab-btn pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-medium text-sm transition-all"
+                        onclick="switchTab('summary')">Summary</button>
+                    <button
+                        class="tab-btn pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-medium text-sm transition-all"
+                        onclick="switchTab('explanation')">Explanation</button>
+                    <button
+                        class="tab-btn pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-medium text-sm transition-all"
+                        onclick="switchTab('diagrams')">Diagrams</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto px-8 py-10" id="scroll-content">
+                <div class="max-w-4xl mx-auto space-y-12">
+                    <!-- Header Section -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-widest rounded-full">AI
+                                Refined</span>
+                            <span id="sync-time" class="text-on-surface-variant text-xs font-medium">Synced:
+                                Loading...</span>
+                        </div>
+                        <h1 id="workspace-title"
+                            class="text-5xl font-black text-primary leading-tight tracking-tighter">Loading Note...</h1>
+                    </div>
+
+                    <!-- Dynamic note block -->
+                    <div class="space-y-10 prose max-w-none" id="workspace-body">
+                        <!-- Rendered Markdown will go here -->
+                    </div>
+
+                    <!-- Diagram block (Only visible on Diagrams tab) -->
+                    <div id="diagram-container"
+                        class="hidden bg-surface-container-low rounded-xl p-8 border-outline-variant/10">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="font-manrope font-bold text-on-surface-variant">Architecture Flow</span>
+                        </div>
+                        <div id="mermaid-render"
+                            class="w-full overflow-x-auto bg-white rounded-lg p-6 flex justify-center">
+                            <!-- Rendered Mermaid goes here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Floating bottom bar -->
+            <div
+                class="fixed bottom-8 w-[90%] max-w-md left-1/2 -translate-x-1/2 lg:left-[35%] flex justify-around items-center p-4 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-emerald-500/10 border border-slate-100/50">
+                <button
+                    class="flex flex-col items-center gap-1 text-slate-400 hover:scale-105 transition-transform active:scale-95 duration-150"
+                    onclick="copyWorkspaceText()">
+                    <span class="material-symbols-outlined">content_copy</span>
+                    <span class="font-manrope font-semibold text-xs">Copy Text</span>
+                </button>
+                <button
+                    class="flex flex-col items-center gap-1 text-emerald-600 hover:scale-105 transition-transform active:scale-95 duration-150"
+                    onclick="exportToPDF()">
+                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                    <span class="font-manrope font-semibold text-xs">Download PDF</span>
+                </button>
+                <button
+                    class="flex flex-col items-center gap-1 text-slate-400 hover:scale-105 transition-transform active:scale-95 duration-150"
+                    onclick="showShareModal()">
+                    <span class="material-symbols-outlined">share</span>
+                    <span class="font-manrope font-semibold text-xs">Share</span>
+                </button>
+            </div>
+
+            <!-- Floating Mobile AI Chat FAB Button -->
+            <button id="mobile-chat-fab"
+                class="lg:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-secondary text-white shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
+                onclick="toggleMobileChat(true)">
+                <span class="material-symbols-outlined text-2xl"
+                    style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span
+                    class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white"></span>
+            </button>
+        </section>
+
+        <!-- RIGHT AI CHAT PANEL (30% desktop / sliding drawer mobile) -->
+        <section id="ai-chat-sidebar"
+            class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-surface-container-low flex flex-col border-l border-outline-variant/10 shadow-2xl translate-x-full transition-transform duration-300 ease-in-out lg:static lg:w-96 lg:translate-x-0 lg:shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.05)] lg:z-auto">
+            <!-- Chat Header -->
+            <div class="p-6 flex items-center justify-between border-b border-outline-variant/10 lg:border-b-0">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined">smart_toy</span>
+                    </div>
+                    <div>
+                        <h3 class="font-manrope font-bold text-primary">Insight AI</h3>
+                        <div class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-[10px] text-on-surface-variant font-medium">Ready to assist</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Close Button -->
+                <button class="lg:hidden p-2 rounded-full hover:bg-surface-container transition-colors"
+                    onclick="toggleMobileChat(false)">
+                    <span class="material-symbols-outlined text-on-surface">close</span>
+                </button>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Message list dynamic -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-6 bg-surface-container-high/50 border-t border-outline-variant/10">
+                <div class="relative">
+                    <textarea id="chat-input"
+                        class="w-full bg-surface-container-lowest border-0 rounded-2xl p-4 pr-12 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/50 resize-none transition-all duration-300 outline-none"
+                        placeholder="Ask anything about these notes..." rows="2"></textarea>
+                    <button
+                        class="absolute bottom-3 right-3 p-2 bg-secondary text-white rounded-xl shadow-lg hover:bg-primary transition-all active:scale-95"
+                        onclick="sendChatMessage()">
+                        <span class="material-symbols-outlined text-sm">send</span>
+                    </button>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button
+                        class="px-3 py-1.5 bg-surface-container text-[10px] font-bold text-on-surface-variant rounded-full hover:bg-secondary hover:text-white transition-all"
+                        onclick="triggerQuickAction('Explain logic')">Explain logic</button>
+                    <button
+                        class="px-3 py-1.5 bg-surface-container text-[10px] font-bold text-on-surface-variant rounded-full hover:bg-secondary hover:text-white transition-all"
+                        onclick="triggerQuickAction('Generate quiz')">Generate quiz</button>
+                    <button
+                        class="px-3 py-1.5 bg-surface-container text-[10px] font-bold text-on-surface-variant rounded-full hover:bg-secondary hover:text-white transition-all"
+                        onclick="triggerQuickAction('Summarize')">Summarize</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Share Overlay Modal (Export.html visual) -->
+    <div id="share-modal"
+        class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-8 relative flex flex-col items-center">
+            <button
+                class="absolute top-6 right-6 p-2 bg-surface-container hover:bg-surface-container-high transition-colors rounded-full"
+                onclick="hideShareModal()">
+                <span class="material-symbols-outlined text-on-surface">close</span>
+            </button>
+            <div
+                class="w-12 h-12 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-3xl">task_alt</span>
+            </div>
+            <h2 class="font-headline font-extrabold text-2xl text-primary leading-tight text-center">Share Workspace
+            </h2>
+            <p class="text-on-surface-variant text-sm text-center mt-2">Get direct collaboration or export links
+                instantly.</p>
+
+            <div class="w-full mt-6 space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-on-surface-variant mb-2 block">Direct Shareable Link</label>
+                    <div class="flex gap-2">
+                        <input id="share-link-input" type="text" readonly
+                            class="flex-1 bg-surface-container-low rounded-lg px-4 py-3 text-sm text-on-surface-variant border border-transparent focus:ring-0 truncate"
+                            value="" />
+                        <button class="bg-secondary text-white p-3 rounded-lg hover:bg-primary transition-all"
+                            onclick="copyShareLink()">
+                            <span class="material-symbols-outlined">link</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+
+        const workspaceId = window.location.pathname.split('/').pop();
+        let currentWorkspace = null;
+        let currentTab = 'notes';
+
+        if (!localStorage.getItem('thinkpad_token')) {
+            window.location.href = '/login';
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('thinkpad_token');
+            localStorage.removeItem('thinkpad_user');
+            window.location.href = '/login';
+        }
+
+        async function loadWorkspace() {
+            try {
+                const res = await fetch(`/api/workspaces/${workspaceId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                    }
+                });
+                const data = await res.json();
+                if (!res.ok) return window.location.href = '/processing';
+
+                currentWorkspace = data.workspace;
+                localStorage.setItem('last_workspace_id', workspaceId);
+                document.getElementById('workspace-title').innerText = currentWorkspace.title;
+                document.getElementById('sync-time').innerText = `Synced: ${new Date(currentWorkspace.updated_at).toLocaleTimeString()}`;
+
+                renderContent();
+                renderChatHistory(currentWorkspace.chat_history || []);
+            } catch (e) {
+                window.location.href = '/processing';
+            }
+        }
+
+        function renderContent() {
+            const body = document.getElementById('workspace-body');
+            const diagContainer = document.getElementById('diagram-container');
+            body.innerHTML = '';
+            diagContainer.classList.add('hidden');
+
+            if (currentTab === 'notes') {
+                body.innerHTML = marked.parse(currentWorkspace.notes || '# No notes yet');
+            } else if (currentTab === 'summary') {
+                if (currentWorkspace.summary) {
+                    body.innerHTML = marked.parse(currentWorkspace.summary);
+                } else {
+                    body.innerHTML = `<button class="px-6 py-3 bg-primary text-white rounded-xl" onclick="generateAIField('summary')">Generate Summary</button>`;
+                }
+            } else if (currentTab === 'explanation') {
+                if (currentWorkspace.explanation) {
+                    body.innerHTML = marked.parse(currentWorkspace.explanation);
+                } else {
+                    body.innerHTML = `<button class="px-6 py-3 bg-primary text-white rounded-xl" onclick="generateAIField('explain')">Generate Explanation</button>`;
+                }
+            } else if (currentTab === 'diagrams') {
+                diagContainer.classList.remove('hidden');
+                const renderDiv = document.getElementById('mermaid-render');
+                if (currentWorkspace.mermaid_diagram) {
+                    renderDiv.innerHTML = `<pre class="mermaid">${currentWorkspace.mermaid_diagram}</pre>`;
+                    try {
+                        mermaid.init(undefined, renderDiv.querySelectorAll('.mermaid'));
+                    } catch (e) {
+                        renderDiv.innerHTML = '<p class="text-red-500">Failed to render flowchart.</p>';
+                    }
+                } else {
+                    renderDiv.innerHTML = `<button class="px-6 py-3 bg-primary text-white rounded-xl" onclick="generateAIField('flowchart')">Generate Diagram</button>`;
+                }
+            }
+        }
+
+        async function generateAIField(endpoint) {
+            const body = document.getElementById('workspace-body');
+            const diagContainer = document.getElementById('diagram-container');
+            body.innerHTML = '<p class="text-secondary font-bold flex gap-2"><span class="material-symbols-outlined animate-spin">sync</span> AI is writing...</p>';
+
+            try {
+                const res = await fetch(`/api/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                    },
+                    body: JSON.stringify({ workspace_id: workspaceId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    if (endpoint === 'summary') currentWorkspace.summary = data.summary;
+                    if (endpoint === 'explain') currentWorkspace.explanation = data.explanation;
+                    if (endpoint === 'flowchart') currentWorkspace.mermaid_diagram = data.mermaid_code;
+                    renderContent();
+                } else {
+                    alert(data.error || 'Generation failed');
+                }
+            } catch (e) {
+                alert('Generation failed: ' + e.message);
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const buttons = document.querySelectorAll('#tabs-bar button');
+            buttons.forEach(btn => {
+                btn.className = "pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-medium text-sm transition-all";
+                if (btn.innerText.toLowerCase() === tab) {
+                    btn.className = "pb-3 border-b-2 border-primary text-primary font-bold text-sm";
+                }
+            });
+            renderContent();
+        }
+
+        function renderChatHistory(history) {
+            const chat = document.getElementById('chat-messages');
+            chat.innerHTML = '';
+            history.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `flex gap-3 ${isUser ? 'justify-end' : ''}`;
+                msgDiv.innerHTML = `
+                <div class="flex-1 ${isUser ? 'max-w-[85%] ml-auto' : 'max-w-[85%]'} space-y-2">
+                    <div class="${isUser ? 'bg-primary text-on-primary rounded-tr-none' : 'bg-surface-container-lowest text-on-surface rounded-tl-none'} p-4 rounded-2xl shadow-sm text-sm leading-relaxed ${isUser ? '' : 'chat-prose'}">
+                        ${isUser ? msg.content : marked.parse(msg.content)}
+                    </div>
+                </div>
+            `;
+                chat.appendChild(msgDiv);
+            });
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            const chat = document.getElementById('chat-messages');
+
+            // Render user message immediately
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex gap-3 justify-end';
+            userDiv.innerHTML = `
+            <div class="flex-1 max-w-[85%] space-y-2 ml-auto">
+                <div class="bg-primary text-on-primary p-4 rounded-2xl rounded-tr-none shadow-md text-sm">
+                    ${text}
+                </div>
+            </div>
+        `;
+            chat.appendChild(userDiv);
+            chat.scrollTop = chat.scrollHeight;
+
+            // Typing state
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'flex gap-3';
+            typingDiv.innerHTML = `
+            <div class="flex-1 space-y-2">
+                <div class="bg-surface-container-lowest p-5 rounded-2xl rounded-tl-none shadow-sm text-sm border-2 border-tertiary-fixed/30 relative">
+                    <div class="flex items-center gap-2 text-tertiary-container font-semibold mb-2">
+                        <span class="material-symbols-outlined text-sm animate-spin">auto_awesome</span>
+                        <span>Thinking...</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="h-3 bg-surface-container w-[90%] rounded-full animate-pulse"></div>
+                        <div class="h-3 bg-surface-container w-[60%] rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+            chat.appendChild(typingDiv);
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                    },
+                    body: JSON.stringify({ workspace_id: workspaceId, message: text })
+                });
+                const data = await res.json();
+                chat.removeChild(typingDiv);
+                if (res.ok) {
+                    const aiDiv = document.createElement('div');
+                    aiDiv.className = 'flex gap-3';
+                    aiDiv.innerHTML = `
+                    <div class="flex-1 max-w-[85%] space-y-2">
+                        <div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-none shadow-sm text-sm chat-prose">
+                            ${marked.parse(data.response)}
+                        </div>
+                    </div>
+                `;
+                    chat.appendChild(aiDiv);
+                } else {
+                    alert(data.error || 'Chat failed');
+                }
+            } catch (e) {
+                chat.removeChild(typingDiv);
+                alert('Connection error: ' + e.message);
+            }
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function triggerQuickAction(action) {
+            document.getElementById('chat-input').value = action;
+            sendChatMessage();
+        }
+
+        function showShareModal() {
+            document.getElementById('share-link-input').value = `${window.location.origin}/workspace/${workspaceId}`;
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+
+        function hideShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyShareLink() {
+            const inp = document.getElementById('share-link-input');
+            inp.select();
+            document.execCommand('copy');
+            alert('Copied direct link!');
+        }
+
+        function copyWorkspaceText() {
+            const content = document.getElementById('workspace-body').innerText;
+            navigator.clipboard.writeText(content);
+            alert('Notes content copied!');
+        }
+
+        async function exportToPDF() {
+            // Create an elegant print-only container
+            const printContainer = document.createElement('div');
+            printContainer.className = 'p-8 bg-white text-slate-800 font-sans max-w-4xl mx-auto';
+            printContainer.style.fontFamily = "'Inter', sans-serif";
+
+            // Determine content based on current active tab
+            let activeTabContent = '';
+            if (currentTab === 'notes') {
+                activeTabContent = currentWorkspace.notes || '# No notes yet';
+            } else if (currentTab === 'summary') {
+                activeTabContent = currentWorkspace.summary || '# No summary yet';
+            } else if (currentTab === 'explanation') {
+                activeTabContent = currentWorkspace.explanation || '# No explanation yet';
+            } else if (currentTab === 'diagrams') {
+                activeTabContent = `### Flowchart Definition\n\`\`\`mermaid\n${currentWorkspace.mermaid_diagram || ''}\n\`\`\``;
+            }
+
+            // Render Markdown to high-quality HTML
+            const htmlContent = marked.parse(activeTabContent);
+
+            // Populate beautiful layouts, branding header, metadata block, and footers
+            printContainer.innerHTML = `
+            <!-- Top Branding Header -->
+            <div style="border-bottom: 2px solid #222a3e; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4059aa; font-family: 'Manrope', sans-serif;">ThinkPadLLM — Intelligent Canvas</span>
+                <span style="font-size: 9px; color: #64748b; font-weight: 500;">Exported: ${new Date().toLocaleDateString()}</span>
+            </div>
+
+            <!-- Premium Dark Gradient Meta Header Block -->
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 25px; border-radius: 12px; color: white; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; color: #38bdf8; margin-bottom: 6px;">Workspace Intelligence Report</div>
+                <h1 style="font-size: 24px; font-weight: 800; margin: 0; line-height: 1.3; font-family: 'Manrope', sans-serif;">${currentWorkspace.title || 'Untitled Workspace'}</h1>
+                
+                <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 10px; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; flex-wrap: wrap;">
+                    <div>📅 <strong>Last Synced:</strong> ${new Date(currentWorkspace.updated_at).toLocaleString()}</div>
+                    <div>🧠 <strong>AI Engine:</strong> Gemini 1.5 Pro</div>
+                    <div>🏷️ <strong>Canvas:</strong> ${currentTab.toUpperCase()}</div>
+                </div>
+            </div>
+
+            <!-- Content Area formatted with perfect typographic structure -->
+            <div class="pdf-prose" style="font-size: 13px; line-height: 1.65; color: #334155;">
+                ${htmlContent}
+            </div>
+
+            <!-- Elegant Footer Banner -->
+            <div style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 12px; text-align: center; font-size: 8px; color: #94a3b8; font-weight: 500; display: flex; justify-content: space-between; font-family: 'Inter', sans-serif;">
+                <span>© ${new Date().getFullYear()} ThinkPadLLM. Confirmed Authentic Export.</span>
+                <span>Page 1 of 1</span>
+            </div>
+
+            <style>
+                .pdf-prose h1 { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; font-family: 'Manrope', sans-serif; page-break-after: avoid; break-after: avoid; }
+                .pdf-prose h2 { font-size: 15px; font-weight: 700; color: #1e293b; margin-top: 20px; margin-bottom: 8px; font-family: 'Manrope', sans-serif; page-break-after: avoid; break-after: avoid; }
+                .pdf-prose h3 { font-size: 13px; font-weight: 600; color: #334155; margin-top: 15px; margin-bottom: 6px; font-family: 'Manrope', sans-serif; page-break-after: avoid; break-after: avoid; }
+                .pdf-prose p { margin-bottom: 12px; text-align: justify; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 12px; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 12px; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose li { margin-bottom: 5px; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose strong { font-weight: 700; color: #0f172a; }
+                .pdf-prose blockquote { border-left: 4px solid #4059aa; padding-left: 14px; color: #475569; font-style: italic; margin: 15px 0; background: #f8fafc; padding: 10px 14px; border-radius: 4px; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose pre { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 11px; overflow-x: auto; margin-bottom: 12px; page-break-inside: avoid; break-inside: avoid; }
+                .pdf-prose code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #0f172a; }
+            </style>
+        `;
+
+            document.body.appendChild(printContainer);
+
+            const opt = {
+                margin: [12, 12, 12, 12],
+                filename: `${currentWorkspace?.title || 'notes'}_${currentTab}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            // Render beautifully
+            html2pdf().from(printContainer).set(opt).save().then(() => {
+                document.body.removeChild(printContainer);
+            });
+        }
+
+        function toggleMobileChat(isOpen) {
+            const sidebar = document.getElementById('ai-chat-sidebar');
+            if (isOpen) {
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+            }
+        }
+
+        function toggleMainSidebar(isOpen) {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        loadWorkspace();
+    </script>
+</body>
+
+</html>
