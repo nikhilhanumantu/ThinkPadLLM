@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Intelligent Canvas | Sign In</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#222a3e",
+                        "secondary": "#4059aa",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background font-body text-slate-900 min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-black font-headline tracking-tight text-primary">ThinkPadLLM</h1>
+        <p class="text-slate-500 mt-2">The Intelligent Canvas</p>
+    </div>
+
+    <!-- Tab links -->
+    <div class="flex rounded-xl bg-slate-100 p-1 mb-8">
+        <button id="tab-login" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm" onclick="setTab('login')">Sign In</button>
+        <button id="tab-register" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500" onclick="setTab('register')">Create Account</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="space-y-4" onsubmit="handleAuthSubmit(event)">
+        <div id="name-container" class="hidden">
+            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Full Name</label>
+            <input id="auth-name" type="text" class="w-full bg-slate-50 rounded-xl px-4 py-3 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/30 transition-all" placeholder="John Doe" />
+        </div>
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Email</label>
+            <input id="auth-email" type="email" required class="w-full bg-slate-50 rounded-xl px-4 py-3 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/30 transition-all" placeholder="you@example.com" />
+        </div>
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Password</label>
+            <input id="auth-password" type="password" required class="w-full bg-slate-50 rounded-xl px-4 py-3 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-secondary/30 transition-all" placeholder="••••••••" />
+        </div>
+
+        <button type="submit" class="w-full py-4 bg-gradient-to-br from-primary to-secondary text-white font-bold rounded-xl hover:scale-[0.98] transition-transform flex items-center justify-center gap-2 mt-6">
+            <span class="material-symbols-outlined text-[20px]" id="btn-icon">login</span>
+            <span id="btn-text">Sign In</span>
+        </button>
+    </form>
+</div>
+
+<script>
+    let activeTab = 'login';
+
+    function setTab(tab) {
+        activeTab = tab;
+        const tabLogin = document.getElementById('tab-login');
+        const tabRegister = document.getElementById('tab-register');
+        const nameContainer = document.getElementById('name-container');
+        const btnIcon = document.getElementById('btn-icon');
+        const btnText = document.getElementById('btn-text');
+
+        if (tab === 'login') {
+            tabLogin.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm";
+            tabRegister.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500";
+            nameContainer.classList.add('hidden');
+            btnIcon.innerText = "login";
+            btnText.innerText = "Sign In";
+        } else {
+            tabLogin.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500";
+            tabRegister.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm";
+            nameContainer.classList.remove('hidden');
+            btnIcon.innerText = "person_add";
+            btnText.innerText = "Create Account";
+        }
+    }
+
+    async function handleAuthSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById('auth-name').value;
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        const endpoint = activeTab === 'login' ? '/api/auth/login' : '/api/auth/register';
+        const body = activeTab === 'login' ? { email, password } : { name, email, password };
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('thinkpad_token', data.token);
+                localStorage.setItem('thinkpad_user', JSON.stringify(data.user));
+                window.location.href = '/';
+            } else {
+                alert(data.error || 'Authentication failed');
+            }
+        } catch {
+            alert('Server error');
+        }
+    }
+</script>
+</body></html>

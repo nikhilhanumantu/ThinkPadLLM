@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Intelligent Canvas | Smart Board Notes Generator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface-variant": "#444651",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#264191",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#8fa7fe",
+                        "outline": "#757682",
+                        "on-secondary-container": "#1d3989",
+                        "on-tertiary-fixed": "#002109",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00164e",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#222a3e",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#dae2fd",
+                        "on-background": "#191c1e",
+                        "secondary-fixed": "#dce1ff",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c5c5d3",
+                        "primary-container": "#384055",
+                        "on-primary-container": "#a4abc5",
+                        "surface": "#f7f9fb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#003211",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#004b1e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#4059aa",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#b6c4ff",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-tertiary-container": "#22c55e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .ai-pulse-border {
+            position: relative;
+        }
+
+        .ai-pulse-border::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #222a3e, #4059aa, #6bff8f);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .text-gradient-primary {
+            background: linear-gradient(135deg, #0f172a 0%, #4059aa 50%, #22c55e 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .animated-gradient-text {
+            background: linear-gradient(270deg, #4f46e5, #22c55e, #06b6d4, #4f46e5);
+            background-size: 600% 600%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 50% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            75% {
+                background-position: 50% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface font-body min-h-screen">
+    <!-- Sidebar Mobile Overlay Backdrop -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 md:hidden" onclick="toggleMainSidebar(false)"></div>
+
+    <!-- Mobile Navigation Sidebar Drawer -->
+    <aside id="main-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-100 flex flex-col p-4 border-r border-slate-200/10 h-full -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+        <div class="flex items-center justify-between mb-10 px-2">
+            <h1 class="font-headline font-extrabold text-xl text-slate-900 cursor-pointer" onclick="window.location.href='/'">ThinkPadLLM</h1>
+            <!-- Mobile Sidebar Close Trigger -->
+            <button class="p-2 rounded-full hover:bg-slate-200 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(false)">
+                <span class="material-symbols-outlined text-slate-700">close</span>
+            </button>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a class="flex items-center gap-3 px-4 py-3 bg-white text-slate-900 rounded-xl shadow-sm transition-all duration-300" href="/">
+                <span class="material-symbols-outlined">add</span>
+                <span class="font-label text-sm">New Board</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-all duration-300 rounded-xl cursor-pointer" onclick="handleWorkspaceNav(event)">
+                <span class="material-symbols-outlined">memory</span>
+                <span class="font-label text-sm">Workspace</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-all duration-300 rounded-xl" href="/processing">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label text-sm">My Boards</span>
+            </a>
+        </nav>
+        <div class="pt-4 mt-4 border-t border-slate-200">
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-700 transition-all rounded-xl cursor-pointer" onclick="handleAuthClick()">
+                    <span class="material-symbols-outlined" id="sidebar-auth-icon">account_circle</span>
+                    <span class="font-label text-sm" id="sidebar-auth-text">Sign In</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <header
+        class="bg-slate-50/60 backdrop-blur-xl fixed top-0 w-full z-[35] flex justify-between items-center px-6 md:px-8 h-20 max-w-full">
+        <div class="flex items-center gap-4">
+            <!-- Mobile Sidebar Hamburger Menu -->
+            <button class="md:hidden p-2 rounded-full hover:bg-slate-200/50 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(true)">
+                <span class="material-symbols-outlined text-slate-900 text-2xl">menu</span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/'">
+                <span class="text-xl md:text-2xl font-black text-slate-900 font-headline tracking-tight">ThinkPadLLM</span>
+            </div>
+        </div>
+        <nav class="hidden md:flex items-center space-x-8 font-headline font-bold tracking-tight">
+            <a class="text-slate-900 border-b-2 border-slate-900 py-1 transition-colors" href="/">New Board</a>
+            <a class="text-slate-500 hover:bg-slate-200/50 transition-colors px-3 py-1 rounded-lg"
+                href="/processing">My Boards</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <button
+                class="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl font-semibold hover:scale-95 transition-all duration-200"
+                id="auth-btn" onclick="handleAuthClick()">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+                <span id="auth-text">Sign In</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative pt-32 pb-24 px-6 overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
+            <div
+                class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary-fixed-dim/20 blur-[120px] rounded-full">
+            </div>
+            <div
+                class="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-tertiary-fixed/10 blur-[100px] rounded-full">
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 space-y-6">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-high text-on-secondary-fixed-variant text-sm font-semibold tracking-wide mb-4">
+                    <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Powered by Gemini 3.0 Flash
+                </div>
+                <h1
+                    class="text-3xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight text-primary leading-[1.1] max-w-5xl mx-auto whitespace-normal md:whitespace-nowrap">
+                    Think Smarter. <span class="animated-gradient-text">Learn Faster.</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-on-surface-variant font-medium max-w-2xl mx-auto">
+                    Transform board notes, videos, and ideas into meaningful knowledge with AI-driven clarity.
+                </p>
+                <p class="text-lg text-on-surface-variant/80 font-semibold mt-2">
+                    Your Intelligent Learning Partner
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <!-- YouTube Input Section -->
+                <div
+                    class="lg:col-span-5 flex flex-col justify-center p-10 rounded-2xl bg-surface-container-low/50 backdrop-blur-sm border border-outline-variant/10">
+                    <div class="mb-8">
+                        <div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center mb-4">
+                            <span
+                                class="material-symbols-outlined text-on-secondary-container text-3xl">smart_display</span>
+                        </div>
+                        <h3 class="text-2xl font-headline font-bold text-primary mb-2">Import from Video</h3>
+                        <p class="text-on-surface-variant">Paste a YouTube link to extract transcriptions, key moments,
+                            and visual summaries.</p>
+                    </div>
+                    <div class="relative group">
+                        <input id="youtube-url"
+                            class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-5 text-primary placeholder:text-outline focus:ring-2 focus:ring-secondary transition-all font-medium pr-16 shadow-sm outline-none"
+                            placeholder="https://youtube.com/watch?v=..." type="text" />
+                        <button id="youtube-btn"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-primary text-on-primary rounded-lg hover:bg-secondary transition-colors"
+                            onclick="handleYoutubeImport()">
+                            <span class="material-symbols-outlined">content_paste_go</span>
+                        </button>
+                    </div>
+                    <!-- Coming Soon Notice -->
+                    <div class="mt-4 flex items-center justify-between px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 font-semibold select-none text-[11px] font-headline">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-amber-600 animate-pulse">info</span>
+                            <span>YouTube processing is coming in the next update!</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white font-headline text-[9px] uppercase tracking-wider">Coming Soon!</span>
+                    </div>
+                </div>
+
+                <!-- Drag & Drop Upload Section -->
+                <div
+                    class="lg:col-span-7 rounded-2xl bg-surface-container-lowest shadow-2xl shadow-primary/5 border border-outline-variant/20 p-2 overflow-hidden flex items-center justify-center">
+                    <div id="drop-zone"
+                        class="w-full h-full min-h-[400px] border-2 border-dashed border-outline-variant/40 rounded-xl flex flex-col items-center justify-center text-center p-12 group hover:border-secondary transition-colors relative cursor-pointer"
+                        onclick="document.getElementById('file-input').click()">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-tertiary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="mb-6 relative inline-block">
+                                <div
+                                    class="absolute inset-0 bg-tertiary-fixed blur-2xl opacity-20 group-hover:opacity-40 transition-opacity">
+                                </div>
+                                <span
+                                    class="material-symbols-outlined text-7xl text-primary-container relative">add_photo_alternate</span>
+                            </div>
+                            <h2 class="text-3xl font-headline font-extrabold text-primary mb-3">Drop your board photos
+                                here</h2>
+                            <p class="text-on-surface-variant max-w-sm mx-auto mb-8 text-lg leading-relaxed">
+                                Upload JPG, PNG or PDF of your meeting whiteboards, lecture notes or brainstorm
+                                sessions.
+                            </p>
+                            <button
+                                class="px-8 py-4 rounded-xl bg-surface-container-high text-primary font-headline font-bold text-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2 mx-auto">
+                                <span class="material-symbols-outlined">folder_open</span>
+                                Browse Files
+                            </button>
+                        </div>
+                        <div class="absolute bottom-4 right-4 z-20"
+                            onclick="event.stopPropagation(); handleGenerateClick();">
+                            <button
+                                class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-primary to-secondary text-on-primary font-headline font-semibold shadow-lg hover:scale-95 transition-all duration-200">
+                                <span class="material-symbols-outlined"
+                                    style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                Generate
+                            </button>
+                        </div>
+                        <input type="file" id="file-input" class="hidden" accept="image/*,.pdf"
+                            onchange="handleFileSelect(event)" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                    class="p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm hover:translate-y-[-4px] transition-transform">
+                    <span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-4">memory</span>
+                    <h4 class="text-xl font-headline font-bold mb-2">OCR Analysis</h4>
+                    <p class="text-on-surface-variant text-sm">Advanced neural recognition extracts even the messiest
+                        handwriting from vertical boards.</p>
+                </div>
+                <div
+                    class="p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm hover:translate-y-[-4px] transition-transform">
+                    <span class="material-symbols-outlined text-secondary text-4xl mb-4">auto_awesome_motion</span>
+                    <h4 class="text-xl font-headline font-bold mb-2">Contextual Structuring</h4>
+                    <p class="text-on-surface-variant text-sm">Our AI doesn't just read; it understands relationships
+                        between diagrams and text.</p>
+                </div>
+                <div
+                    class="p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm hover:translate-y-[-4px] transition-transform">
+                    <span class="material-symbols-outlined text-error text-4xl mb-4">share_windows</span>
+                    <h4 class="text-xl font-headline font-bold mb-2">Instant Export</h4>
+                    <p class="text-on-surface-variant text-sm">Export your smart notes to Notion, Obsidian, or Google
+                        Docs with a single click.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple frontend logic
+        const token = localStorage.getItem('thinkpad_token');
+        if (token) {
+            document.getElementById('auth-text').innerText = 'Sign Out';
+            const sidebarAuthText = document.getElementById('sidebar-auth-text');
+            const sidebarAuthIcon = document.getElementById('sidebar-auth-icon');
+            if (sidebarAuthText) sidebarAuthText.innerText = 'Sign Out';
+            if (sidebarAuthIcon) sidebarAuthIcon.innerText = 'logout';
+        }
+
+        function handleAuthClick() {
+            if (localStorage.getItem('thinkpad_token')) {
+                localStorage.removeItem('thinkpad_token');
+                localStorage.removeItem('thinkpad_user');
+                window.location.reload();
+            } else {
+                window.location.href = '/login';
+            }
+        }
+
+        async function handleYoutubeImport() {
+            const url = document.getElementById('youtube-url').value;
+            if (!url) return alert('Please enter a YouTube URL');
+            if (!localStorage.getItem('thinkpad_token')) return window.location.href = '/login';
+
+            const btn = document.getElementById('youtube-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+
+            try {
+                const res = await fetch('/api/video-import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                    },
+                    body: JSON.stringify({ url })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = '/processing';
+                } else {
+                    alert(data.error || 'Failed to import video');
+                }
+            } catch (e) {
+                alert('Error connecting to server');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">content_paste_go</span>';
+            }
+        }
+
+        let selectedFile = null;
+
+        function handleGenerateClick() {
+            if (!selectedFile) {
+                document.getElementById('file-input').click();
+            } else {
+                uploadFile(selectedFile);
+            }
+        }
+
+        async function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            setFileSelected(file);
+        }
+
+        // Drag and drop events
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-secondary', 'bg-secondary/5');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-secondary', 'bg-secondary/5');
+            const file = e.dataTransfer.files[0];
+            if (file) setFileSelected(file);
+        });
+
+        function setFileSelected(file) {
+            selectedFile = file;
+            const dropText = dropZone.querySelector('h2');
+            const dropDesc = dropZone.querySelector('p');
+            dropText.innerText = "Uploaded successfully!";
+            dropDesc.innerText = `Selected file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        }
+
+        async function uploadFile(file) {
+            if (!localStorage.getItem('thinkpad_token')) return window.location.href = '/login';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const dropText = dropZone.querySelector('h2');
+            const dropDesc = dropZone.querySelector('p');
+            const originalText = dropText.innerText;
+            const originalDesc = dropDesc.innerText;
+
+            dropText.innerText = "Uploading & processing...";
+            dropDesc.innerText = "Running OCR & context extraction. Please wait.";
+
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                    },
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    // Redirect directly to the Workspace Canvas page!
+                    window.location.href = `/workspace/${data.workspace_id}`;
+                } else {
+                    alert(data.error || 'Upload failed');
+                    dropText.innerText = originalText;
+                    dropDesc.innerText = originalDesc;
+                }
+            } catch (e) {
+                alert('Upload failed');
+                dropText.innerText = originalText;
+                dropDesc.innerText = originalDesc;
+            }
+        }
+
+        function toggleMainSidebar(isOpen) {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function handleWorkspaceNav(e) {
+            if (e) e.preventDefault();
+            const lastId = localStorage.getItem('last_workspace_id');
+            if (lastId) {
+                window.location.href = `/workspace/${lastId}`;
+            } else {
+                alert('Please select or upload a board to enter a workspace.');
+            }
+        }
+    </script>
+</body>
+
+</html>

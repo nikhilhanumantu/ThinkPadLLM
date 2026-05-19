@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manuscript AI - Processing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface-variant": "#444651",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#264191",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#8fa7fe",
+                        "outline": "#757682",
+                        "on-secondary-container": "#1d3989",
+                        "on-tertiary-fixed": "#002109",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00164e",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#222a3e",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#dae2fd",
+                        "on-background": "#191c1e",
+                        "secondary-fixed": "#dce1ff",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c5c5d3",
+                        "primary-container": "#384055",
+                        "on-primary-container": "#a4abc5",
+                        "surface": "#f7f9fb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#003211",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#004b1e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "secondary": "#4059aa",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#b6c4ff",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-tertiary-container": "#22c55e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ai-pulse-border {
+            position: relative;
+        }
+        .ai-pulse-border::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #6bff8f, #4059aa);
+            border-radius: 1.6rem;
+            z-index: -1;
+            opacity: 0.6;
+        }
+        .glass-panel {
+            background: rgba(224, 227, 229, 0.6);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen flex">
+<!-- Sidebar Mobile Overlay Backdrop -->
+<div id="sidebar-backdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden" onclick="toggleMainSidebar(false)"></div>
+
+<!-- SideNavBar (desktop inline sidebar / mobile slide-out drawer) -->
+<aside id="main-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-100 flex flex-col p-4 border-r border-slate-200/10 h-full -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:w-64 lg:z-auto">
+<div class="flex items-center justify-between mb-10 px-2">
+<h1 class="font-headline font-extrabold text-xl text-slate-900 cursor-pointer" onclick="window.location.href='/'">ThinkPadLLM</h1>
+<!-- Mobile Sidebar Close Trigger -->
+<button class="lg:hidden p-2 rounded-full hover:bg-slate-200 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(false)">
+    <span class="material-symbols-outlined text-slate-700">close</span>
+</button>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-all duration-300 rounded-xl" href="/">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label text-sm">New Board</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-all duration-300 rounded-xl cursor-pointer" onclick="handleWorkspaceNav(event)">
+<span class="material-symbols-outlined">memory</span>
+<span class="font-label text-sm">Workspace</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-slate-900 rounded-xl shadow-sm transition-all duration-300" href="/processing">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label text-sm">My Boards</span>
+</a>
+</nav>
+<div class="pt-4 mt-4 border-t border-slate-200">
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm hover:scale-[0.98] transition-transform flex items-center justify-center gap-2 mb-6" onclick="window.location.href='/'">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Note
+            </button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-700 transition-all rounded-xl cursor-pointer" onclick="handleLogout()">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label text-sm">Sign Out</span>
+</a>
+</div>
+</div>
+</aside>
+
+<!-- Mobile Header Bar -->
+<header class="lg:hidden bg-slate-50/60 backdrop-blur-xl text-slate-900 fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-6 h-16 border-b border-slate-200/30">
+    <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-slate-200/50 transition-colors flex items-center justify-center" onclick="toggleMainSidebar(true)">
+            <span class="material-symbols-outlined text-slate-900 text-2xl">menu</span>
+        </button>
+        <span class="text-lg font-black text-slate-900 cursor-pointer select-none" onclick="window.location.href='/'">ThinkPadLLM</span>
+    </div>
+    <button class="p-2 rounded-full hover:bg-slate-200/50 transition-colors" onclick="handleLogout()">
+        <span class="material-symbols-outlined text-slate-900">logout</span>
+    </button>
+</header>
+
+<main class="flex-1 min-w-0 p-6 pt-24 lg:pt-12 md:p-12 pb-32">
+<header class="flex flex-col md:flex-row justify-between items-start gap-4 mb-12">
+<div>
+<h2 class="font-headline text-3xl md:text-5xl font-extrabold text-primary tracking-tight mb-2">My Boards</h2>
+<p class="text-on-surface-variant text-base md:text-lg">Review and extract insights from your smart captures.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-surface-container-highest text-primary font-headline font-bold rounded-xl hover:bg-surface-container-high transition-all text-sm md:text-base" onclick="window.location.href='/'">
+                    Upload More
+                </button>
+</div>
+</header>
+
+<!-- Status / Progress Banner -->
+<div id="progress-banner" class="hidden ai-pulse-border bg-surface-container-lowest p-8 rounded-xl mb-12 flex items-center justify-between gap-8">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-3xl animate-spin">auto_awesome</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl">AI Intelligence is analyzing...</h4>
+<p id="progress-filename" class="text-on-surface-variant">Scanning files for structural patterns and key concepts.</p>
+</div>
+</div>
+<div class="flex-1 max-w-md">
+<div class="w-full bg-surface-container h-3 rounded-full overflow-hidden">
+<div id="progress-bar" class="bg-gradient-to-r from-tertiary-fixed-dim to-secondary h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+</div>
+<div class="flex justify-between mt-2 font-label text-xs font-semibold text-on-surface-variant">
+<span id="progress-pct">0% Complete</span>
+<span>Analyzing content...</span>
+</div>
+</div>
+</div>
+
+<!-- Files Grid -->
+<div id="workspaces-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Dynamic contents go here -->
+</div>
+</main>
+
+<script>
+    if (!localStorage.getItem('thinkpad_token')) {
+        window.location.href = '/login';
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('thinkpad_token');
+        localStorage.removeItem('thinkpad_user');
+        window.location.href = '/login';
+    }
+
+    async function loadWorkspaces() {
+        try {
+            const res = await fetch('/api/workspaces', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                }
+            });
+            const data = await res.json();
+            if (!res.ok) return;
+
+            const grid = document.getElementById('workspaces-grid');
+            grid.innerHTML = '';
+
+            let currentlyProcessing = null;
+
+            data.workspaces.forEach(ws => {
+                if (ws.status === 'processing') {
+                    currentlyProcessing = ws;
+                }
+
+                const card = document.createElement('div');
+                card.className = "group relative bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer";
+                card.onclick = () => {
+                    if (ws.status === 'ready') window.location.href = `/workspace/${ws._id}`;
+                };
+
+                const typeIcon = ws.source_type === 'youtube' ? 'smart_display' : 'image';
+                const statusBadge = ws.status === 'ready' 
+                    ? `<span class="px-2 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] font-bold rounded-full uppercase tracking-wider">AI Scanned</span>`
+                    : `<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse">Processing</span>`;
+
+                card.innerHTML = `
+                    <div class="aspect-[4/3] bg-surface-container-high relative flex items-center justify-center">
+                        <span class="material-symbols-outlined text-secondary text-5xl">${typeIcon}</span>
+                        ${ws.status === 'processing' ? `
+                            <div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                                <div class="w-8 h-8 border-3 border-secondary border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                        ` : `
+                            <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                <button class="p-3 bg-white text-primary rounded-full hover:scale-110 transition-transform">
+                                    <span class="material-symbols-outlined">open_in_new</span>
+                                </button>
+                                <button class="p-3 bg-error text-white rounded-full hover:scale-110 transition-transform" onclick="event.stopPropagation(); deleteWorkspace('${ws._id}')">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                    <div class="p-5">
+                        <h5 class="font-headline font-bold truncate">${ws.title}</h5>
+                        <p class="text-on-surface-variant text-xs mt-1">${new Date(ws.created_at).toLocaleDateString()}</p>
+                        <div class="flex gap-2 mt-3">
+                            ${statusBadge}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Handle progress banner
+            const banner = document.getElementById('progress-banner');
+            if (currentlyProcessing) {
+                banner.classList.remove('hidden');
+                document.getElementById('progress-filename').innerText = `Analyzing ${currentlyProcessing.title || 'your file'}...`;
+                const pct = currentlyProcessing.processing_progress || 45;
+                document.getElementById('progress-bar').style.width = pct + '%';
+                document.getElementById('progress-pct').innerText = pct + '% Complete';
+            } else {
+                banner.classList.add('hidden');
+            }
+
+        } catch (e) {
+            console.error('Failed to load workspaces', e);
+        }
+    }
+
+    async function deleteWorkspace(id) {
+        if (!confirm('Delete this workspace permanently?')) return;
+        try {
+            const res = await fetch(`/api/workspaces/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('thinkpad_token')
+                }
+            });
+            if (res.ok) {
+                loadWorkspaces();
+            } else {
+                alert('Delete failed');
+            }
+        } catch {
+            alert('Delete failed');
+        }
+    }
+
+    function handleWorkspaceNav(e) {
+        if (e) e.preventDefault();
+        const lastId = localStorage.getItem('last_workspace_id');
+        if (lastId) {
+            window.location.href = `/workspace/${lastId}`;
+        } else {
+            alert('Please select or upload a board to enter a workspace.');
+        }
+    }
+
+    function toggleMainSidebar(isOpen) {
+        const sidebar = document.getElementById('main-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (isOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        }
+    }
+
+    loadWorkspaces();
+    setInterval(loadWorkspaces, 4000);
+</script>
+</body></html>
