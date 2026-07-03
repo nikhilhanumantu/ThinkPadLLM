@@ -6,7 +6,7 @@
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 + Vite + TypeScript + Tailwind CSS |
+| Frontend |HTML CSS JS |
 | Backend | Python Flask + JWT Auth |
 | AI | Google Gemini 1.5 Pro |
 | Database | MongoDB Atlas |
